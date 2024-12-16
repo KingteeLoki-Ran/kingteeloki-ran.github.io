@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description"
+          content="Exploring for the first time the possibility of using implicit neural representations for autonomous 3D scene reconstruction.">
+    <meta name="author" content="Yunlong Ran,
+                                Jing zeng,
+                                Shibo He,
+                                Jiming Chen,
+                                Lincheng Li,
+                                Yingfeng Chen,
+                                Gim Hee Lee,
+                                Qi Ye">
+
+    <title>NeurAR: Neural Uncertainty for Autonomous 3D Reconstruction with Implicit Neural Representations</title>
+
+    <!-- Custom styles for this template -->
+    <link href="offcanvas.css" rel="stylesheet">
+        <link rel="icon" href="img/icon.svg" type="image/svg">
+
+
+
+</head>
+
+<body>
+<div class="jumbotron jumbotron-fluid">
+    <div class="container"></div>
+    <h1 class="nerf_title_v2">CT-NeRF</h1>
+<!--    <h2 class="nerf_title_v2">Tensorial Radiance Fields</h2>-->
+    <h1 class="nerf_subheader_v2">CT-NeRF: Incremental Optimizing Neural Radiance Field and Poses with Complex Trajectory</h1>
+    <hr>
+    <p class="authors">
+        <a href="https://kingteeloki-ran.github.io/"> Yunlong Ran</a>,
+        <a href=""> Yanxu Li</a>,
+        <a href="https://person.zju.edu.cn/en/yeqi"> Qi Ye</a>,
+        <a href=""> Yuchi Huo</a>,
+        <a href=""> Zhaopeng cui</a>,
+        <a href=""> Jiahao Sun</a>,
+        <a href=""> Zechun Bai</a>,
+        <a href=""> Lincheng Li</a>,
+        <a href=""> Yingfeng Chen</a>,
+        <a href="https://person.zju.edu.cn/en/jmchen"> Jiming Chen</a>
+        
+    </p>
+
+    <!-- <div class="nerf_equal_v2"><span class="text-span_nerf">*</span><span class="text-span_nerf_star">*</span>Denotes Equal Contribution</div> -->
+
+    </br></br>
+    <div class="btn-group" role="group" aria-label="Top menu">
+        <a class="btn btn-primary" href="https://arxiv.org/abs/2404.13896">Paper</a>
+        <a class="btn btn-primary" href="https://github.com/KingteeLoki-Ran/CT-NeRF">Code</a>
+    </div>
+</div>
+
+
+
+<div class="container">
+    <div class="w-container">
+        <h2 class="grey-heading_nerf">Overview Video</h2>
+<!--    <div class="section">-->
+        <div class="vcontainer">
+            <iframe class='video' src="img/ctnerfforpre_x25.mp4" frameborder="0"
+                    allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+                    allowfullscreen></iframe>
+        </div>
+
+    </div>
+
+<!--<hr>-->
+    </br></br>
+    <div data-anchor="slide1" class="section nerf_section">
+        <div class="grey_container w-container">
+            <h2 class="grey-heading_nerf">
+                Abstract
+            </h2>
+            <div class="columns-5 w-row">
+                <img src="img/teaser.png" style="width:95%; margin-right:0px; margin-top:0px;">
+            </div>
+            <p class="paragraph-3 nerf_text">
+                Neural radiance field (NeRF) has achieved impressive results in
+                high-quality 3D scene reconstruction. However, NeRF heavily relies
+                on precise camera poses. While recent works like BARF have introduced
+                camera pose optimization within NeRF, their applicability is limited
+                to simple trajectory scenes. Existing methods struggle while tackling
+                complex trajectories involving large rotations. To address this
+                limitation, we propose CT-NeRF, an incremental reconstruction and 
+                optimization pipeline using only RGB images without pose and depth input. 
+                In this pipeline, we first propose a local-global bundle adjustment under 
+                a pose graph connecting neighboring frames to enforce the consistency 
+                between poses to escape the local minima caused by only pose consistency 
+                with the scene structure. Further, we instantiate the consistency between 
+                poses as a reprojection error constraint resulting from pixel-level 
+                correspondences between input image pairs. Through the incremental 
+                reconstruction, CT-NeRF enables the recovery of both camera poses and scene 
+                structure and is capable of handling scenes with complex trajectories. We 
+                evaluate the performance of CT-NeRF on two real-world datasets, NeRFBuster 
+                and Free-Dataset, which feature complex trajectories. Results show CT-NeRF 
+                outperforms existing methods in novel view synthesis and pose estimation accuracy.
+            </p>
+            
+            <h2 class="grey-heading_nerf">
+                Method
+            </h2>
+            <div class="columns-5 w-row">
+                <img src="img/pipeline.png" style="width:95%; margin-right:0px; margin-top:0px;">
+            </div>
+            <p class="paragraph-3 nerf_text">
+                1. Incremental Optimization Pipeline
+                CT-NeRF performs optimization incrementally by processing images frame by frame. 
+                Initially, Identity matrix poses and 3D scene structure are set, and as new frames are added, 
+                optimization gradually refines both the camera poses and scene structure. 
+                This approach allows CT-NeRF to work efficiently with complex motion 
+                trajectories without requiring prior knowledge of camera poses.
+            </p>
+            <p class="paragraph-3 nerf_text">
+                2. Local-Global Bundle Adjustment
+                To ensure consistency across all camera poses, 
+                CT-NeRF applies a local-global bundle adjustment strategy. 
+                Local optimization is performed for each newly introduced image, 
+                refining the camera pose and scene geometry. Periodically, 
+                global optimization is applied to adjust the entire camera pose graph, 
+                maintaining consistency and preventing drift, which is particularly important in long, 
+                non-linear camera trajectories.
+
+
+            </p>
+            <div class="columns-5 w-row">
+                <img src="img/rploss.png" style="width:95%; margin-right:0px; margin-top:0px;">
+            </div>
+            <p class="paragraph-3 nerf_text">
+                3. Reprojection Geometric Image Distance Constraint
+                One of the key innovations of CT-NeRF is the reprojection constraint, 
+                which uses pixel-level correspondences between image pairs. 
+                By projecting pixels from one image to another based on estimated depth and camera pose, 
+                CT-NeRF calculates the Euclidean distance between the projected point and the actual point, 
+                providing a direct gradient signal for optimization. 
+                This geometric constraint ensures accurate alignment of camera poses and scene structures.
+            </p>
+            <h2 class="grey-heading_nerf">
+                Results
+            </h2>
+            <div class="columns-5 w-row">
+                <img src="img/results.png" style="width:95%; margin-right:0px; margin-top:0px;">
+            </div>
+            <p class="paragraph-3 nerf_text">
+                Qualitative comparison on Free-Dataset. Trajectory comparison (left). 
+                We visualize camera poses of both estimated (blue) and COLMAP (red). 
+                Sparse 3D points for the scenes are from COLMAP. Rendered views (top right corner) 
+                and depths (bottom right corner). More results in the supplemental material.
+            </p>
+           
+        </div>
+    </div>
+
+</br></br>
+    <div class="section">
+        <s2>Bibtex</s2>
+        <hr>
+        <div class="bibtexsection">
+            @article{ran2024ct,
+                title={CT-NeRF: Incremental Optimizing Neural Radiance Field and Poses with Complex Trajectory},
+                author={Ran, Yunlong and Li, Yanxu and Ye, Qi and Huo, Yuchi and Bai, Zechun and Sun, Jiahao and Chen, Jiming},
+                journal={arXiv preprint arXiv:2404.13896},
+                year={2024}
+              }
+        </div>
+    </div>
+
+        
+
+        
+
+    <hr>
+
+    <footer>
+        <p>This website is partially borrowed from TensoRF.
+            Send feedback and questions to <a href="https://kingteeloki-ran.github.io/">Yunlong Ran</a></p>
+    </footer>
+</div>
+
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+        integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+        crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+        integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+        crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"
+        integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI"
+        crossorigin="anonymous"></script>
+
+<script src="https://d3e54v103j8qbb.cloudfront.net/js/jquery-3.5.1.min.dc5e7f18c8.js?site=51e0d73d83d06baa7a00000f" type="text/javascript" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
+<script src="https://uploads-ssl.webflow.com/51e0d73d83d06baa7a00000f/js/webflow.fd6c33218.js" type="text/javascript"></script>
+
+<!--[if lte IE 9]><script src="//cdnjs.cloudflare.com/ajax/libs/placeholders/3.0.2/placeholders.min.js"></script><![endif]-->
+
+</body>
+</html>
